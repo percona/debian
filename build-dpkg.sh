@@ -121,6 +121,10 @@ mv -v ./debian ${ORIG_TAR_DIR}
 # Change into the orig source tree
 cd ${ORIG_TAR_DIR}
 
+# Touch up/find replace various version bits across the tree
+sed -i "s:@@PERCONA_VERSION_EXTRA@@:${MYSQL_VERSION_EXTRA}:g" ./debian/rules
+sed -i "s:@@REVISION@@:${BZR_REVISION}:g" ./debian/rules
+
 # Call the debian build system to build the source package
 dpkg-buildpackage -S
 

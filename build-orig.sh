@@ -1,18 +1,19 @@
 #!/bin/bash
-# Usage: build-orig.sh [options] [source-dir] [working-dir]
+# Usage: build-orig.sh [options] [http location of source tarball]
 #
 # The program will build a .orig.tar.gz file with embedded version information
-# for consumption by debian package build process.
+# for consumption by debian package build process from a raw 'upstream'
+# Percona Server source tarball.
 #
 
 # Bail out on errors, be strict
 set -ue
 
-# The location of the source tree to build
-SOURCE_DIR=''
-
 # The working directory and location of resulting files
-WORKING_DIR=''
+WORKING_DIR=$PWD
+
+# The given source tarball location
+HTTP_LOCATION=''
 
 # Read from the VERSION file
 MYSQL_VERSION_MAJOR=''
@@ -23,9 +24,6 @@ MYSQL_VERSION_EXTRA=''
 # Composed versions
 PERCONA_SERVER_FULLNAME=''
 PERCONA_SERVER_DEBNAME=''
-
-# bzr revno
-BZR_REVISION=''
 
 # Don't clean up after ourselves
 DONT_CLEAN=''
@@ -39,7 +37,7 @@ function show_usage()
 
 	echo \
 "Usage:
-	$(basename $0) [options] [source-dir] [working-dir]
+	$(basename $0) [options] [http location of source tarball]
 Options:
 	-d | --dont-clean	Don't clean directories afterwards.
 	-h | --help		Display this help message."
@@ -47,7 +45,7 @@ Options:
 }
 
 # Examine parameters
-go_out="$(getopt --options="dh" --longoptions="dont-clean,help-mtr" \
+go_out="$(getopt --options="dhw" --longoptions="dont-clean,help,working" \
 	--name="$(basename "$0")" -- "$@")"
 eval set -- "$go_out"
 
@@ -61,59 +59,26 @@ do
 done
 
 if [ $# -eq 0 ]; then
-	show_usage 1 "No source-dir specified"
+	show_usage 1 "No bzr branch specified"
 fi
-SOURCE_DIR=$1; shift;
-if [ ! -d "${SOURCE_DIR}" ]; then
-	show_usage 1 "Invalid source-dir specified \"${SOURCE_DIR}\""
-fi
+HTTP_LOCATION=$@;
 
-if [ $# -eq 0 ]; then
-	show_usage 1 "No working-dir specified"
-fi
-WORKING_DIR=$1; shift;
-if [ ! -d "${SOURCE_DIR}" ]; then
-	show_usage 1 "Invalid working-dir specified \"${WORKING_DIR}\""
-fi
-
-echo "SOURCE_DIR=${SOURCE_DIR}"
+echo "HTTP_LOCATION=${HTTP_LOCATION}"
 echo "WORKING_DIR=${WORKING_DIR}"
 
 # And away we go...
-cd ${SOURCE_DIR}
+cd ${WORKING_DIR}
 
-# Clean up the source tree
-bzr clean-tree --unknown --ignored --detritus --force
-
-# Read version info from the VERSION file
-. VERSION
-
-# Build out various file and directory names
-MYSQL_VERSION_EXTRA=${MYSQL_VERSION_EXTRA#-}
-PERCONA_SERVER_FULLNAME=percona-server-${MYSQL_VERSION_MAJOR}.${MYSQL_VERSION_MINOR}.${MYSQL_VERSION_PATCH}-${MYSQL_VERSION_EXTRA}
-PERCONA_SERVER_DEBNAME=percona-server-${MYSQL_VERSION_MAJOR}.${MYSQL_VERSION_MINOR}_${MYSQL_VERSION_MAJOR}.${MYSQL_VERSION_MINOR}.${MYSQL_VERSION_PATCH}-rel${MYSQL_VERSION_EXTRA}
-BZR_REVISION=$(bzr revno)
-
-# And now our locals for the task at hand
-SOURCE_TAR=${PERCONA_SERVER_FULLNAME}.tar.gz
-SOURCE_TAR_DIR=${PERCONA_SERVER_FULLNAME}
-ORIG_TAR=${PERCONA_SERVER_DEBNAME}.orig.tar.gz
-
-# Build out the source tarball
-cmake .
-make dist
+# Get the source
+wget ${HTTP_LOCATION}
 
 # Find the resulting source tarball
+SOURCE_TAR=$(basename $(find . -type f -name '*.tar.gz' | sort | tail -n1))
 if [ ! -e "${SOURCE_TAR}" ] || [ ! -f "${SOURCE_TAR}" ]; then
   echo "ERROR : No result source tar file \"${SOURCE_TAR}\" found from \'cmake . && make dist\'."
   exit 1
 fi
-
-# Move it out to the working directory
-mv ${SOURCE_TAR} ${WORKING_DIR}
-
-# Relocate to the working dir
-cd ${WORKING_DIR}
+SOURCE_TAR_DIR=${SOURCE_TAR%".tar.gz"}
 
 # Extract the source tar
 if [ -d "${SOURCE_TAR_DIR}" ]; then
@@ -121,9 +86,23 @@ if [ -d "${SOURCE_TAR_DIR}" ]; then
 fi
 tar -xzf ${SOURCE_TAR}
 
-# Touch up/find replace various version bits across tha tree
-sed -i "s:@@PERCONA_VERSION_EXTRA@@:${MYSQL_VERSION_EXTRA}:g" ${SOURCE_TAR_DIR}/build-ps/debian/rules
-sed -i "s:@@REVISION@@:${BZR_REVISION}:g" ${SOURCE_TAR_DIR}/build-ps/debian/rules
+# Read version info from the VERSION file
+. ${SOURCE_TAR_DIR}/VERSION
+
+# Build out various file and directory names
+MYSQL_VERSION_EXTRA=${MYSQL_VERSION_EXTRA#-}
+PERCONA_SERVER_FULLNAME=percona-server-${MYSQL_VERSION_MAJOR}.${MYSQL_VERSION_MINOR}.${MYSQL_VERSION_PATCH}-${MYSQL_VERSION_EXTRA}
+PERCONA_SERVER_DEBNAME=percona-server-${MYSQL_VERSION_MAJOR}.${MYSQL_VERSION_MINOR}_${MYSQL_VERSION_MAJOR}.${MYSQL_VERSION_MINOR}.${MYSQL_VERSION_PATCH}-rel${MYSQL_VERSION_EXTRA}
+BZR_REVISION=$(grep "REVISION = " ${SOURCE_TAR_DIR}/build-ps/debian/rules |  awk -F "'" '{print $2}')
+
+# Sanity version test
+if [ "${PERCONA_SERVER_FULLNAME}" != "${SOURCE_TAR_DIR}" ]; then
+	echo "ERROR : Source tarball \"${SOURCE_TAR}\" name does not match internal \"${PERCONA_SERVER_FULLNAME}\""
+	exit 1
+fi
+
+# And now our locals for the task at hand
+ORIG_TAR=${PERCONA_SERVER_DEBNAME}.orig.tar.gz
 
 # Remove anything not needed for debian build.
 rm -f ${SOURCE_TAR_DIR}/doc/source/percona-theme/static/jquery.min.js
@@ -153,3 +132,6 @@ tar --owner=0 --group=0 --exclude=.bzr --exclude=.git -czf ${ORIG_TAR} ${SOURCE_
 if [ "${DONT_CLEAN}" != "true" ]; then
 	rm -rf ${SOURCE_TAR_DIR}
 fi
+
+# Return
+exit 0
