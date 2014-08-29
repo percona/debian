@@ -86,6 +86,11 @@ if [ -d "${SOURCE_TAR_DIR}" ]; then
 fi
 tar -xzf ${SOURCE_TAR}
 
+if [ ! -d "${SOURCE_TAR_DIR}" ]; then
+	echo "ERROR : Directory \"${SOURCE_TAR_DIR}\" not found after extracting \"${SOURCE_TAR}\""
+	exit 1
+fi
+
 # Read version info from the VERSION file
 . ${SOURCE_TAR_DIR}/VERSION
 
