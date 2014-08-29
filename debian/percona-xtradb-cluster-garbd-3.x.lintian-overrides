@@ -1,0 +1,2 @@
+percona-xtradb-cluster-garbd-3.x: extra-license-file usr/share/doc/percona-xtradb-cluster-garbd-3.x/COPYING
+percona-xtradb-cluster-garbd-3.x: binary-without-manpage usr/bin/garbd

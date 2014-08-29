@@ -1,0 +1,17 @@
+From: George Ormond Lorch III
+Description: Fix upstream garbd 'stop' action when garbd is not configured. 
+Forwarded: not-needed
+
+--- a/garb/files/garb.sh
++++ b/garb/files/garb.sh
+@@ -140,6 +140,10 @@
+ }
+ 
+ stop() {
++	if [ ! -f "$config" ] || grep -q -E '^# REMOVE' $config; then
++		log_failure "Garbd config $config is not configured yet"
++		return 0
++	fi
+ 	[ "$EUID" != "0" ] && return 4
+ 	[ -r $PIDFILE ]    || return 3 # ESRCH
+ 	program_stop
