@@ -45,7 +45,7 @@ Options:
 }
 
 # Examine parameters
-go_out="$(getopt --options="dhw" --longoptions="dont-clean,help,working" \
+go_out="$(getopt --options="dh" --longoptions="dont-clean,help" \
 	--name="$(basename "$0")" -- "$@")"
 eval set -- "$go_out"
 
@@ -59,7 +59,7 @@ do
 done
 
 if [ $# -eq 0 ]; then
-	show_usage 1 "No bzr branch specified"
+	show_usage 1 "No http location specified"
 fi
 HTTP_LOCATION=$@;
 
