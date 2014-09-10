@@ -1,6 +1,9 @@
 percona-xtradb-cluster-galera-3.x (3.6-2) unstable; urgency=medium
 
   * Removed unnecessary line(S) from .lintian-overrides
+  * Added patch fix_garbd_stop.patch to address upstream issue where on package
+    rm, an attempt is made to stop garbd even if it not running, resulting in
+    an rm error.
 
  -- George Ormond Lorch III <george.lorch@percona.com>  Tue, 09 Sep 2014 13:01:48 -0700
 
