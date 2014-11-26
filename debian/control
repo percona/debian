@@ -31,103 +31,6 @@ Standards-Version: 3.9.5
 Homepage: http://www.percona.com/software/percona-server/
 Vcs-Bzr: lp:~percona-core/percona-server/debian
 
-Package: libperconaserverclient18.1
-Section: libs
-Architecture: any
-Depends: mysql-common, ${misc:Depends}, ${shlibs:Depends}
-Pre-Depends: multiarch-support, ${misc:Pre-Depends}
-Replaces: libpercona-server-client16, libperconaserverclient18
-Multi-Arch: same
-Description: Percona Server database client library
- Percona Server is a fast, stable and true multi-user,
- multi-threaded SQL database server. SQL (Structured Query Language)
- is the most popular database query language in the world. The main
- goals of Percona Server are speed, robustness and ease of use.
- .
- This package includes the client library.
-
-Package: libperconaserverclient18.1-dev
-Architecture: any
-Section: libdevel
-Depends: libperconaserverclient18.1 (= ${binary:Version}),
-         zlib1g-dev,
-         ${misc:Depends}
-Breaks: libmariadbclient-dev,
-        libmysqlclient18-dev,
-        libperconaserverclient10-dev,
-        libperconaserverclient12-dev,
-        libperconaserverclient14-dev,
-        libperconaserverclient15-dev,
-        libperconaserverclient16-dev,
-        libperconaserverclient18-dev
-Replaces: libmariadbclient-dev,
-          libmysqlclient18-dev,
-          libpercona-xtradb-client-dev,
-          libperconaserverclient10-dev,
-          libperconaserverclient12-dev,
-          libperconaserverclient14-dev,
-          libperconaserverclient15-dev,
-          libperconaserverclient16-dev,
-          libperconaserverclient18-dev
-Provides: libmysqlclient-dev
-Description: Percona Server database development files
- Percona Server is a fast, stable and true multi-user, multi-threaded SQL
- database server. SQL (Structured Query Language) is the most popular
- database query language in the world. The main goals of Percona Server are
- speed, robustness and ease of use.
- .
- This package includes development libraries and header files.
-
-Package: percona-server-client-5.6
-Architecture: any
-Depends: debianutils (>=1.6),
-         libdbi-perl,
-         libperconaserverclient18.1 (>= ${source:Version}),
-         mysql-common,
-         ${misc:Depends},
-         ${shlibs:Depends}
-Conflicts: mysql-client-5.5,
-           mysql-client-5.6,
-           mysql-client-core-5.5,
-           mysql-client-core-5.6
-Breaks: mariadb-client,
-        mariadb-client-5.5,
-        mariadb-client-core-5.5,
-        mysql-client-5.0,
-        mysql-client-5.1,
-        mysql-client-5.5,
-        mysql-client-5.6,
-        mysql-client-core-5.1,
-        mysql-client-core-5.5,
-        percona-server-client-5.1,
-        percona-server-client-5.5,
-        percona-xtradb-client-5.0,
-        virtual-mysql-client,
-        virtual-mysql-client-core
-Replaces: mariadb-client,
-          mariadb-client-5.5,
-          mariadb-client-core-5.5,
-          mysql-client-5.0,
-          mysql-client-5.1,
-          mysql-client-5.5,
-          mysql-client-5.6,
-          mysql-client-core-5.1,
-          mysql-client-core-5.5,
-          percona-server-client-5.1,
-          percona-server-client-5.5,
-          percona-xtradb-client-5.0,
-          virtual-mysql-client,
-          virtual-mysql-client-core
-Provides: mysql-client, virtual-mysql-client, virtual-mysql-client-core
-Description: Percona Server database client binaries
- Percona Server is a fast, stable and true multi-user, multi-threaded SQL
- database server. SQL (Structured Query Language) is the most popular database
- query language in the world. The main goals of Percona Server are speed,
- robustness and ease of use.
- .
- This package includes the client binaries and the additional tools
- innotop and mysqlreport.
-
 Package: percona-server-server-5.6
 Architecture: any
 Suggests: tinyca
@@ -138,7 +41,7 @@ Depends: libdbd-mysql-perl,
          libdbi-perl,
          lsb-base (>= 3.0-10),
          passwd,
-         percona-server-client-5.6 (>= ${source:Version}),
+         mysql-client-5.6,
          perl (>= 5.6),
          psmisc,
          ${misc:Depends},
@@ -199,21 +102,9 @@ Description: Percona Server database server
  query language in the world. The main goals of Percona Server are speed,
  robustness and ease of use.
 
-Package: percona-server-client
-Section: database
-Architecture: all
-Depends: percona-server-client-5.6, ${misc:Depends}
-Description: Percona Server database client
- (metapackage depending on the latest version)
- This is an empty package that depends on the current "best" version of
- percona-server-client (currently percona-server-client-5.6), as determined
- by the Percona Server maintainers.  Install this package if in doubt
- about which Percona Server version you want, as this is the one we consider
- to be in the best shape.
-
 Package: percona-server-test-5.6
 Architecture: any
-Depends: percona-server-client-5.6 (>= ${source:Version}),
+Depends: mysql-client-5.6,
          percona-server-server-5.6 (>= ${source:Version}),
          ${misc:Depends},
          ${shlibs:Depends}
