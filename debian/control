@@ -34,14 +34,12 @@ Vcs-Bzr: lp:~percona-core/percona-server/debian
 Package: percona-server-server-5.6
 Architecture: any
 Suggests: tinyca
-Pre-Depends: adduser (>= 3.4.0),
-             debconf,
-             mysql-common
+Pre-Depends: adduser (>= 3.4.0), debconf, mysql-common
 Depends: libdbd-mysql-perl,
          libdbi-perl,
          lsb-base (>= 3.0-10),
-         passwd,
          mysql-client-5.6,
+         passwd,
          perl (>= 5.6),
          psmisc,
          ${misc:Depends},
