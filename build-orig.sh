@@ -88,7 +88,9 @@ if [ ! -d "${SOURCE_TAR_DIR}" ]; then
 fi
 
 # Collect versions stuffs
-GALERA_VERSION=$(grep '^GALERA_VER' ${SOURCE_TAR_DIR}/SConstruct  | grep -oE "'[0-9.]+'" | tr -d "'")
+#GALERA_VERSION=$(grep '^GALERA_VER' ${SOURCE_TAR_DIR}/SConstruct  | grep -oE "'[0-9.]+'" | tr -d "'")
+GALERA_VERSION=${SOURCE_TAR#"percona-xtradb-cluster-galera-3-"}
+GALERA_VERSION=${GALERA_VERSION%".tar.gz"}
 
 # Relocate to the working dir
 cd ${WORKING_DIR}
@@ -99,6 +101,7 @@ ORIG_TAR_DIR=percona-xtradb-cluster-galera-3.x_${GALERA_VERSION}
 
 # Remove anything not needed for debian build.
 rm -rf ${SOURCE_TAR_DIR}/debian
+rm -rf ${SOURCE_TAR_DIR}/packages/debian
 
 # Write DEB-VERSION file and make a copy in the source tree
 echo "GALERA_VERSION=${GALERA_VERSION}" > DEB-VERSION
