@@ -22,7 +22,9 @@ Provides: galera3, percona-xtradb-cluster-galera-25
 Conflicts: galera,
            percona-xtradb-cluster-galera,
            percona-xtradb-cluster-galera-2.x
-Replaces: galera, percona-xtradb-cluster-galera, percona-xtradb-cluster-galera-3
+Replaces: galera,
+          percona-xtradb-cluster-galera,
+          percona-xtradb-cluster-galera-3
 Depends: ${misc:Depends}, ${shlibs:Depends}
 Description: Galera components of Percona XtraDB Cluster
  This package contains the Galera components required by Percona XtraDB Cluster.
@@ -48,7 +50,8 @@ Description: Debugging package for Percona XtraDB Cluster Galera 3.
 Package: percona-xtradb-cluster-garbd-3.x-dbg
 Architecture: any
 Section: debug
-Depends: percona-xtradb-cluster-garbd-3.x (= ${binary:Version}), ${misc:Depends}
+Depends: percona-xtradb-cluster-garbd-3.x (= ${binary:Version}),
+         ${misc:Depends}
 Description: Debugging package for Percona XtraDB Cluster Garbd 3.
  This package contains the debug components Percona XtraDB Cluster Garbd 3.
 
@@ -63,7 +66,8 @@ Description: Metapackage for latest version of galera3.
 Package: percona-xtradb-cluster-garbd-3
 Architecture: any
 Section: database
-Depends: percona-xtradb-cluster-garbd-3.x (= ${binary:Version}), ${misc:Depends}
+Depends: percona-xtradb-cluster-garbd-3.x (= ${binary:Version}),
+         ${misc:Depends}
 Description: Metapackage for latest version of garbd3.
  This is a metapackage for latest and best version of garbd3.
 
